@@ -17,7 +17,7 @@ Observations:
 
 - Each time I push a commit on the branch having the workflow-actions, the actions specified in the YAML file runs.
 
-**Image proof**
+**Image view**
 ![Settings](assets/workflow-runs.png)
 
 ## Gathering System Information and Manual Triggering :
@@ -47,36 +47,30 @@ Observations: For the workflow dispatch, to be detected, I had to merge my branc
 
 #### System information gathering
 
-To gather system information I can make use of GitHub's context which has user system details. Using the `actions/github-script` action.
-The steps I follow are :
+To gather system information, These are the steps I followed :
 
-- I modified my workflow to add an action name `gather system info`
-- I added an action-step the use the `actions/gihub-script@v5`, with which it is possible to run Javascript code.
+- I modified my workflow to add 2 actions "Get hardware specifications" and "Get hardware specifications"
+- In both action I used system command to print out the required information
 
-```sh
-    jobs:
-        gather_info:
-            runs-on: Ubuntu-latest
-            steps:
-              - name : get github context
-                uses : actions/github-script@v5
-                id: context
-                with:
-                  script: |
-                    console.log(JSON.stringigy(github.context, null,2))
-```
-
-#### Hardware specifications gathering
-
-For Hardware info, I can use the `actions/setup-latest` action. This action sets up the runner with the latest version of the
-specified operating system.
-
-- I added another step
+#### Get Hardware specifications
 
 ```sh
-       - name : get hardware specs
-         uses : actions/setup-latest@v2
-         with :
-            os: ubuntu
-         id: hardware_os
+- name: Get hardware specifications
+    run: |
+        echo "CPU: $(uname -m)"
+        echo "CPU cores: $(nproc)"
+        echo "Memory: $(free -m | awk '/^Mem:/ {print $2}')"
+        echo "Disk space: $(df -h | awk '/^Filesystem/ {print $2}')"
 ```
+
+#### Get OS details
+
+```sh
+- name: Get OS details
+    run: |
+        echo "OS: $(cat /etc/os-release | grep ^NAME | cut -d'=' -f2)"
+        echo "OS version: $(cat /etc/os-release | grep ^VERSION_ID | cut -d'=' -f2)"
+```
+
+**Image view**
+![Settings](assets/system-info.png)
